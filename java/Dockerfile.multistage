@@ -1,0 +1,15 @@
+# Stage 1: build the executable JAR with Maven and JDK.
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
+
+WORKDIR /app
+COPY pom.xml ./
+COPY src ./src
+RUN mvn -B package
+
+# Stage 2: use a JRE-only image to run the packaged application.
+FROM eclipse-temurin:17-jre AS runtime
+
+WORKDIR /app
+COPY --from=builder /app/target/hello-java-1.0.0.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]
